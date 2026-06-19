@@ -41,3 +41,47 @@ def cluster_potential(rs, Grav=43018.7, mstar=1e-10):
     a = np.sqrt(2**(2/3) - 1) * r_half
     return -Grav * M_tot / np.sqrt(dr**2 + a**2)
 
+def calculate_energy(rs3, vs3, rc3, vc3, time,frame):
+    """
+    Compute total energy of stars in a galatic frame.
+    """
+    # Make arrays safe
+    rs3, vs3 = np.asarray(rs3), np.asarray(vs3)
+    rc3, vc3 = np.asarray(rc3), np.asarray(vc3)
+
+    # Relative coordinates and velocities in cluster frame
+    rs_rel = rs3  - rc3
+    vs_rel = vs3  - vc3
+
+    # --- Kinetic energy ---
+    KE = 0.5 * np.sum(vs_rel**2, axis=1)
+
+    # --- Galactic potentials ---
+    P_plum = plummer_potential(rs3)
+    P_NFW = nfw_potential(rs3, time)
+    P_MN = miyamoto_nagai_potential(rs3)
+
+    # --- Cluster self-potential ---
+    P_cluster = cluster_potential(rs_rel)
+
+    # --- Total energy per star ---
+    E_stars =  P_cluster + KE  + P_plum + P_NFW +  P_MN
+    
+     # --- Kinetic energy ---
+    c_KE = 0.5 * np.sum(vc3**2)
+
+    # --- Galactic potentials ---
+    c_P_plum = plummer_potential(rc3[None, :])[0]
+    c_P_NFW  = nfw_potential(rc3[None, :], time)[0]
+    c_P_MN   = miyamoto_nagai_potential(rc3[None, :])[0]
+   
+    
+    #E_c = c_P_plum + c_P_NFW + c_P_MN + c_KE 
+
+    E = E_stars 
+    
+    if frame == "binding":
+        E = P_cluster + KE 
+        return E
+    else:
+         return E_stars
