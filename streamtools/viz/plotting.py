@@ -5,7 +5,7 @@ from ..physics import dynamics
 from ..core.snapshot import Snapshot
 from ..analysis import analysis
 
-def plot_energyvstime(snapshots, ifile_start, ifile_end, E_threshold, nstars=10,
+def plot_energyvstime(snapshots,E_list, ifile_start, ifile_end, E_threshold, nstars=10,
                        t_xlim=(3, 14), e_ylim=(-10, 30), output="energyvstime_random"):
     """
     Plot cluster-frame energy and radius evolution for a random sample of stars
@@ -32,9 +32,7 @@ def plot_energyvstime(snapshots, ifile_start, ifile_end, E_threshold, nstars=10,
     ifile_end = min(ifile_end, len(snapshots) - 1)
     snap0 = snapshots[ifile_start]
 
-    E0 = dynamics.calculate_energy(
-        snap0.rs3, snap0.vs3, snap0.rc3, snap0.vc3, snap0.time, "binding"
-    )
+    E0 = E_list[0]
 
     candidate_idx = np.where(E0 < E_threshold)[0]
     tracked_idx = (
@@ -46,10 +44,8 @@ def plot_energyvstime(snapshots, ifile_start, ifile_end, E_threshold, nstars=10,
     E_series = {idx: [] for idx in tracked_idx}
     R_series = {idx: [] for idx in tracked_idx}
 
-    for snap in snapshots[ifile_start:ifile_end + 1]:
-        E_snap = dynamics.calculate_energy(
-            snap.rs3, snap.vs3, snap.rc3, snap.vc3, snap.time, "binding"
-        )
+    for i, snap in enumerate(snapshots[ifile_start,ifile_end +1]):
+        E_snap = E_list[i]
         rotx, roty, rotz = snap.project_cluster_frame()
         R_snap = np.sqrt(rotx**2 + roty**2 + rotz**2)
 
@@ -73,7 +69,7 @@ def plot_energyvstime(snapshots, ifile_start, ifile_end, E_threshold, nstars=10,
     return fig
 
 def plot_energyvstime_with_orbits(
-    snapshots, ifile_start, ifile_end, E_threshold, nstars=10,
+    snapshots,E_list, ifile_start, ifile_end, E_threshold, nstars=10,
     e_ylim=(-10, 30), r_ylim=(-1, 10), output="energyvstime_orbits"
 ):
     """
@@ -107,9 +103,7 @@ def plot_energyvstime_with_orbits(
     ifile_end = min(ifile_end, len(snapshots) - 1)
     snap0 = snapshots[ifile_start]
 
-    E0 = dynamics.calculate_energy(
-        snap0.rs3, snap0.vs3, snap0.rc3, snap0.vc3, snap0.time, "binding"
-    )
+    E0 = E_list[0]
 
     candidate_idx = np.where(E0 < E_threshold)[0]
     tracked_idx = (
@@ -123,10 +117,8 @@ def plot_energyvstime_with_orbits(
     R_series = {idx: [] for idx in tracked_idx}
     v_rad_series = {idx: [] for idx in tracked_idx}
 
-    for snap in snapshots[ifile_start:ifile_end + 1]:
-        E_snap = dynamics.calculate_energy(
-            snap.rs3, snap.vs3, snap.rc3, snap.vc3, snap.time, "binding"
-        )
+    for i, snap in enumerate(snapshots[ifile_start,ifile_end +1]):
+        E_snap = E_list[i]
         rs_rel = snap.rs3 - snap.rc3
         vs_rel = snap.vs3 - snap.vc3
         v_rad = snap.radial_velocity(rs=snap.rs3, vs=snap.vs3)
