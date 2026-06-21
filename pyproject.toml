@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "streamtools"
+version = "0.1.0"
+description = "Analysis and visualization toolkit for the tidal stream of stars escaping a dissolving star cluster"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "Selin Cakir", email = "cakirselin6@gmail.com" }]
+dependencies = [
+    "numpy>=1.21",
+    "matplotlib>=3.5",
+    "scipy>=1.7",
+    "pillow>=9.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[tool.setuptools.packages.find]
+include = ["streamtools*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

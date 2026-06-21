@@ -7,7 +7,7 @@ v_rad/rotx/roty/rotz/times)
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ..analysis import selection, series
+from ...analysis import selection, series
 from .style import savefig
 
 

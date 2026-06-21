@@ -5,7 +5,7 @@ SnapshotData cache (precomputed by save_snapshot_data).
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ..analysis import series
+from ...analysis import series
 from .style import savefig
 
 

@@ -59,3 +59,84 @@ def classify_escape_state(E_final, Lz_final, L_cluster_z_final):
         else:
             result[i] = "bound"
     return result
+
+
+def escape_time_index(data):
+    """
+    Snapshot index at which each star becomes *permanently* unbound
+    (E > 0 at every subsequent snapshot, with no later rebinding).
+
+    Vectorized equivalent of "walk forward from the last bound snapshot and
+    check everything after it is positive". Because the set of starting
+    indices for which E stays positive forever is always a suffix of the
+    snapshot range, the first index where a reverse running minimum of E
+    turns positive is exactly that escape index -- no per-star Python loop
+    needed.
+
+    Parameters
+    ----------
+    data : SnapshotData
+
+    Returns
+    -------
+    escape_idx : array (n_stars,) of int
+        Snapshot index of permanent escape. 0 if the star is unbound at
+        every snapshot in `data`. -1 if the star never permanently
+        escapes within the covered time range (e.g. still bound at the
+        final snapshot, or it rebinds after every excursion to E > 0).
+    """
+    E = data.E
+    n_snaps = E.shape[0]
+    # rev_min[i, s] = min(E[i:, s]); non-decreasing in i for fixed s.
+    rev_min = np.minimum.accumulate(E[::-1], axis=0)[::-1]
+    positive_forever = rev_min > 0
+    has_escape = positive_forever.any(axis=0)
+    escape_idx = np.where(has_escape, np.argmax(positive_forever, axis=0), -1)
+    return escape_idx.astype(int)
+
+
+def unbinding_time_index(data):
+    """
+    Snapshot index of the *first* time each star has E > 0, regardless of
+    whether it later rebinds. Contrast with `escape_time_index`, which
+    only counts permanent escapes. Used together to measure how long a
+    star "flirts" with the escape threshold before permanently leaving
+    (see analysis.series for the delay-time helper).
+
+    Returns
+    -------
+    unbind_idx : array (n_stars,) of int
+        First snapshot index with E > 0, or -1 if the star is never
+        unbound in `data`.
+    """
+    unbound = data.E > 0
+    ever_unbound = unbound.any(axis=0)
+    unbind_idx = np.where(ever_unbound, np.argmax(unbound, axis=0), -1)
+    return unbind_idx.astype(int)
+
+
+def energy_oscillation_flips(data, min_flips=4):
+    """
+    Identify "potential escapers": stars whose binding energy crosses
+    zero (bound <-> unbound) repeatedly before settling down, rather than
+    escaping (or rebinding) cleanly on the first crossing.
+
+    Parameters
+    ----------
+    data : SnapshotData
+    min_flips : int
+        Minimum number of bound/unbound sign changes in E(t) required to
+        flag a star as oscillating.
+
+    Returns
+    -------
+    osc_idx : array
+        Star indices with >= min_flips sign changes in E(t).
+    flip_counts : array (n_stars,)
+        Number of sign changes for every star, aligned with `data`'s star
+        indexing (not just `osc_idx`).
+    """
+    bound = data.E < 0
+    flip_counts = np.sum(bound[1:] != bound[:-1], axis=0)
+    osc_idx = np.where(flip_counts >= min_flips)[0]
+    return osc_idx, flip_counts

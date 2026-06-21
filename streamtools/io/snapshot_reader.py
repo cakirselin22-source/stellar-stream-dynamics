@@ -6,8 +6,7 @@ import numpy as np
 DEFAULT_DATA_DIR = Path(os.environ.get("STREAM_DATA_DIR", "./data"))
 
 def readsnap(dir, ifile, data_dir=DEFAULT_DATA_DIR):
-  filename = Path(data_dir) / dir / f"snapshot_{ifile:04}" 
-  header = np.fromfile(data_dir, dtype='<i4', count=7)  
+  filename = Path(data_dir) / dir / f"snapshot_{ifile:04}"
 
   hd = np.fromfile(filename,dtype='uint32',count=7)
   nd = hd[2]

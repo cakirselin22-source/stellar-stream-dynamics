@@ -1,4 +1,4 @@
- """Precompute and cache per-snapshot derived quantities.
+"""Precompute and cache per-snapshot derived quantities.
 
 Workflow
 --------
@@ -9,7 +9,7 @@ Workflow
 import numpy as np
 
 from ..physics import dynamics
-from ..analysis.snapshot_data import SnapshotData
+from ..core.snapshot_data import SnapshotData
 
 # Bump this if the cache schema changes shape/fields, so stale .npz files
 # fail loudly instead of silently missing fields.
