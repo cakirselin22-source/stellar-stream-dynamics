@@ -19,7 +19,7 @@ forming stream.
 
 ## Physical picture
 
-A star cluster moves through a galactic potential (NFW halo + Miyamoto-Nagai
+A star cluster moves through a galactic potential that is evolving (NFW halo + Miyamoto-Nagai
 disk + a bulge component, see `physics/potentials.py`) and is gradually
 stripped of stars as they cross its tidal boundary. Each star carries a
 binding energy `E` relative to the cluster; once `E` crosses zero it is
